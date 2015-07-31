@@ -8,25 +8,17 @@ module HasSiblings
       *parents = options.fetch(:through)
       name = options.fetch(:name, "siblings")
 
-      parent_association_pairs = parents.map do |parent|
+      where_scopes = parents.map do |parent|
         reflection = reflect_on_association(parent)
         fail HasSiblings::ThroughAssociationNotFoundError.new(parent, self) if reflection.nil?
-        [parent, reflection]
+        foreign_key = reflection.foreign_key
+        "where(#{foreign_key}: #{foreign_key})"
       end
-      parent_association_name_pairs = parent_association_pairs.map do |parent, association|
-        fail HasSiblings::InverseOfNotFoundError.new(parent, self) if association.inverse_of.nil?
-        [parent, association.inverse_of.name]
-      end
-      merge_scopes = parent_association_name_pairs[1..-1].map do |parent, association_name|
-        "merge(#{parent}.#{association_name})"
-      end
-      first_parent_association = parent_association_name_pairs[0].join(".")
 
       mixin = ActiveRecord.version.to_s >= "4.1" ? generated_association_methods : generated_feature_methods
-
       mixin.class_eval <<-CODE, __FILE__, __LINE__ + 1
         def #{name}
-          #{([first_parent_association] + merge_scopes).join(".")}.where.not(id: id)
+          self.class.#{where_scopes.join(".")}.where.not(id: id)
         end
       CODE
     end

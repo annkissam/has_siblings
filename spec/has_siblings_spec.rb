@@ -17,18 +17,6 @@ describe 'has_siblings' do
     end
   end
 
-  context "without parent association inverse_of" do
-    let!(:parent_class) { stub_const("Parent", Class.new(ActiveRecord::Base)) }
-    let!(:child_class) { stub_const("BlackSheep", Class.new(ActiveRecord::Base)) }
-
-    it "fails" do
-      expect do
-        BlackSheep.belongs_to :parent
-        BlackSheep.has_siblings through: :parent
-      end.to raise_error(HasSiblings::InverseOfNotFoundError)
-    end
-  end
-
   context "with parents" do
     let(:mother) { Mother.create }
     let(:other_mother) { Mother.create }
