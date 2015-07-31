@@ -3,4 +3,11 @@ require "rspec/core/rake_task"
 
 RSpec::Core::RakeTask.new(:spec)
 
-task :default => :spec
+require 'wwtd/tasks'
+task :local => "wwtd:local"
+
+if ENV["TRAVIS"] || ENV["INSIDE_WWTD"]
+  task :default => :spec
+else
+  task :default => :wwtd
+end

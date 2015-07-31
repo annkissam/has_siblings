@@ -22,7 +22,9 @@ module HasSiblings
       end
       first_parent_association = parent_association_name_pairs[0].join(".")
 
-      generated_association_methods.class_eval <<-CODE, __FILE__, __LINE__ + 1
+      mixin = ActiveRecord.version.to_s >= "4.1" ? generated_association_methods : generated_feature_methods
+
+      mixin.class_eval <<-CODE, __FILE__, __LINE__ + 1
         def #{name}
           #{([first_parent_association] + merge_scopes).join(".")}.where.not(id: id)
         end
