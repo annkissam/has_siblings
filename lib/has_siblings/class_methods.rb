@@ -26,6 +26,7 @@ module HasSiblings
 
       mixin.class_eval <<-CODE, __FILE__, __LINE__ + 1
         def #{name}
+          return [] if [#{parents.join(",")}].any?(&:nil?)
           #{([first_parent_association] + merge_scopes).join(".")}.where.not(id: id)
         end
       CODE

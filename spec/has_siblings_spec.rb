@@ -43,4 +43,11 @@ describe 'has_siblings' do
     its(:siblings) { are_expected.to contain_exactly(sister, brother) }
     its(:step_siblings) { are_expected.to contain_exactly(sister, brother, half_sister) }
   end
+
+  context "with a nil parent" do
+    subject!(:orphaned_child) { Child.create }
+
+    its(:siblings) { are_expected.to eq([]) }
+    its(:step_siblings) { are_expected.to eq([]) }
+  end
 end
