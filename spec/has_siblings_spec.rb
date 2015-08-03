@@ -41,13 +41,19 @@ describe 'has_siblings' do
     let!(:just_a_friend) { Child.create(mother: other_mother) }
 
     its(:siblings) { are_expected.to contain_exactly(sister, brother) }
+    its(:siblings) { are_expected.to be_a(ActiveRecord::Relation) }
+
     its(:step_siblings) { are_expected.to contain_exactly(sister, brother, half_sister) }
+    its(:step_siblings) { are_expected.to be_a(ActiveRecord::Relation) }
   end
 
   context "with a nil parent" do
     subject!(:orphaned_child) { Child.create }
 
     its(:siblings) { are_expected.to eq([]) }
+    its(:siblings) { are_expected.to be_a(ActiveRecord::Relation) }
+
     its(:step_siblings) { are_expected.to eq([]) }
+    its(:step_siblings) { are_expected.to be_a(ActiveRecord::Relation) }
   end
 end
