@@ -8,26 +8,28 @@ module HasSiblings
       *parents = options.fetch(:through)
       name = options.fetch(:name, "siblings")
 
-      parent_association_pairs = parents.map do |parent|
+      reflections = parents.map do |parent|
         reflection = reflect_on_association(parent)
-        fail HasSiblings::ThroughAssociationNotFoundError.new(parent, self) if reflection.nil?
-        [parent, reflection]
+        fail HasSiblings::ReflectionNotFoundError.new(parent, self) if reflection.nil?
+        reflection
       end
-      parent_association_name_pairs = parent_association_pairs.map do |parent, association|
-        fail HasSiblings::InverseOfNotFoundError.new(parent, self) if association.inverse_of.nil?
-        [parent, association.inverse_of.name]
+      where_scopes = reflections.map do |reflection|
+        foreign_key = reflection.foreign_key
+        foreign_type = reflection.foreign_type
+
+        if reflection.polymorphic?
+          "where(#{foreign_key}: #{foreign_key}, #{foreign_type}: #{foreign_type})"
+        else
+          "where(#{foreign_key}: #{foreign_key})"
+        end
       end
-      merge_scopes = parent_association_name_pairs[1..-1].map do |parent, association_name|
-        "merge(#{parent}.#{association_name})"
-      end
-      first_parent_association = parent_association_name_pairs[0].join(".")
 
       mixin = ActiveRecord.version.to_s >= "4.1" ? generated_association_methods : generated_feature_methods
 
       mixin.class_eval <<-CODE, __FILE__, __LINE__ + 1
         def #{name}
           return self.class.none if [#{parents.join(",")}].any?(&:nil?)
-          #{([first_parent_association] + merge_scopes).join(".")}.where.not(id: id)
+          self.class.#{where_scopes.join(".")}.where.not(id: id)
         end
       CODE
     end
