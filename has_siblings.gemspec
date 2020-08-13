@@ -12,6 +12,7 @@ Gem::Specification.new do |spec|
   spec.summary       = %q{Easily define a siblings method for a child model instance.}
   spec.description   = %q{ parent.children.where.not(id: self.id), extended to n parents }
   spec.homepage      = "https://github.com/annkissam/has_siblings"
+  spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org by setting 'allowed_push_host', or
   # delete this section to allow pushing this gem to any host.
