@@ -27,6 +27,9 @@ class Child < ActiveRecord::Base
   belongs_to :monster, polymorphic: true
 
   has_siblings through: [:mother, :father]
+  has_siblings through: [:mother, :father],
+               name: :siblings_through_unknown_parent,
+               allow_nil: true
   has_siblings through: :mother, name: :siblings_through_mother
   has_siblings through: :monster, name: :siblings_through_monster
 end

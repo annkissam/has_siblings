@@ -7,6 +7,7 @@ module HasSiblings
     def has_siblings(options = {})
       *parents = options.fetch(:through)
       name = options.fetch(:name, "siblings")
+      allow_nil = options.fetch(:allow_nil, false)
 
       reflections = parents.map do |parent|
         reflection = reflect_on_association(parent)
@@ -28,7 +29,10 @@ module HasSiblings
 
       mixin.class_eval <<-CODE, __FILE__, __LINE__ + 1
         def #{name}
-          return self.class.none if [#{parents.join(",")}].any?(&:nil?)
+          unless #{allow_nil}
+            return self.class.none if [#{parents.join(",")}].any?(&:nil?)
+          end
+
           self.class.#{where_scopes.join(".")}.where.not(id: id)
         end
       CODE

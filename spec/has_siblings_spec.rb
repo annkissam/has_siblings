@@ -35,6 +35,36 @@ describe 'has_siblings' do
     its(:siblings_through_mother) { are_expected.to be_a(ActiveRecord::Relation) }
   end
 
+  context "with one nil parent, without :allow_nil option" do
+    let(:mother) { Mother.create! }
+    let(:other_mother) { Mother.create! }
+    let(:father) { Father.create! }
+
+    subject!(:child) { Child.create!(mother: mother, father: nil) }
+    let!(:sister) { Child.create!(mother: mother, father: nil) }
+    let!(:brother) { Child.create!(mother: mother, father: nil) }
+    let!(:half_sister) { Child.create!(mother: mother, father: father) }
+    let!(:just_a_friend) { Child.create!(mother: other_mother) }
+
+    its(:siblings) { are_expected.to eq([]) }
+    its(:siblings) { are_expected.to be_a(ActiveRecord::Relation) }
+  end
+
+  context "with one nil parent, with :allow_nil option" do
+    let(:mother) { Mother.create! }
+    let(:other_mother) { Mother.create! }
+    let(:father) { Father.create! }
+
+    subject!(:child) { Child.create!(mother: mother, father: nil) }
+    let!(:sister) { Child.create!(mother: mother, father: nil) }
+    let!(:brother) { Child.create!(mother: mother, father: nil) }
+    let!(:half_sister) { Child.create!(mother: mother, father: father) }
+    let!(:just_a_friend) { Child.create!(mother: other_mother) }
+
+    its(:siblings_through_unknown_parent) { are_expected.to contain_exactly(sister, brother) }
+    its(:siblings_through_unknown_parent) { are_expected.to be_a(ActiveRecord::Relation) }
+  end
+
   context "with a nil parent" do
     subject!(:orphaned_child) { Child.create! }
 
