@@ -69,7 +69,10 @@ An example of what it returns:
 
 `has_siblings` accepts a `through: [...]` option that specifies the parents and can
 be an array or a single symbol, and an optional `name` that will be the name of
-the siblings method (default to `siblings`).
+the siblings method (default to `siblings`). By default, when specifying an array of
+parents, any `nil` association will result in an empty sibling collection, if parents
+can optionally be blank setting `allow_nil: true` will include the present parents and
+and the missing parent as conditions to the sibling scope.
 
 ## Compatibility
 
